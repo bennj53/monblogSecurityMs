@@ -22,13 +22,13 @@ import java.util.List;
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //autoriser requettes cros-domain et ajout token dans header via authorisation
+        //autoriser requettes cros-domain et ajout token dans header via authorisation en dernier paramètre
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.addHeader("Access-Control-Allow-Headers", "Origin, Accept, X-Request-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, authorization");
         response.addHeader("Access-Control-Allow-Expose-Headers", "Access-Control-Allow-Origin, Access-Control-Allow-Credentials, authorization");
         //autoriser request cors put, delete
         response.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,PATCH");
-        //si requete envoyé avec OPTION pas de recherche de token on repond OK car pas encore de token
+        //si requete envoyé avec OPTIONS pas de recherche de token on repond OK car pas encore de token, le navigateur demande juste autorisation cross domain
         if(request.getMethod().equals("OPTION")){
             response.setStatus(HttpServletResponse.SC_OK);
         //pas de recherche tokken non plus car accès page pour s'autentifier pas encore de token

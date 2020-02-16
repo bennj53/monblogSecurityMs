@@ -1,4 +1,4 @@
-package com.whiterabbit.web;
+package com.whiterabbit.controller;
 
 import com.whiterabbit.entities.AppUser;
 import com.whiterabbit.services.AccountService;
@@ -16,6 +16,7 @@ public class UserController {
 
     @PostMapping("/register")
     public AppUser register(@RequestBody UserForm userForm){
+        System.out.println("enter to register controller");
         return accountService.saveUser(userForm.getUsername(),userForm.getPassword(),userForm.getConfirmedPassword());
     }
 }

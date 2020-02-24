@@ -22,6 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("enter in UserDetailsServiceImpl");
         AppUser appUser= accountService.loadUserByUsername(username);
 
         if(appUser==null) throw new UsernameNotFoundException("user invalid");

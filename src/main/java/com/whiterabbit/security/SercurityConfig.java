@@ -28,10 +28,11 @@ public class SercurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //désactiver token csrf
-        http.csrf().disable();
+        //désactiver token csrf et autoriser requetes CORS
+        http.cors().and().csrf().disable();
         //désactiver les session
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         http.authorizeRequests().antMatchers("/login/**", "/register/**").permitAll();
         http.authorizeRequests().antMatchers("/appUsers/**","/appRoles/**").hasAuthority("ADMIN");
         http.authorizeRequests().anyRequest().authenticated();

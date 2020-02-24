@@ -4,10 +4,12 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.whiterabbit.entities.AppUser;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -29,7 +31,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
+        System.out.println("enter in JWTAuthenticationFilter method attemptAuthentication");
         try {
             //déserialization
             AppUser appUser = new ObjectMapper().readValue(request.getInputStream(), AppUser.class);
@@ -42,6 +44,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        System.out.println("enter in JWTAuthenticationFilter method successfulAuthentication");
         //recup user authentifié
         User userSpring=(User) authResult.getPrincipal();
         //recup roles
@@ -58,7 +61,48 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withExpiresAt(new Date(System.currentTimeMillis()+SecurityParams.EXPIRATION))             //expiration du token 10 jours
                 .sign(Algorithm.HMAC256(SecurityParams.SECRET));
 
-        //ajout tokken à la reponse
+        //ajout tokken au header de la reponse
         response.addHeader(SecurityParams.JWT_HEADER_NAME, jwt);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        //ajout tokken au body de la reponse
+        response.getWriter().write(
+                "{\"" + SecurityParams.JWT_HEADER_NAME + "\":\"" + SecurityParams.HEADER_PREFIX+jwt + "\""
+        );
+        //ajouter user infos dans la reponse
+
+        response.getWriter().write(
+                ",\"username\":\"" + userSpring.getUsername() + "\""
+        );
+
+        int cpt = 0;
+        for (String role : roles) {
+            cpt++;
+            if(cpt == 1){
+                response.getWriter().write(
+                        ",\"Roles\":[");
+            }
+
+            response.getWriter().write(
+                    "\"" + role + "\""
+            );
+
+            if(cpt < roles.size()){
+                response.getWriter().write(
+                        ","
+                );
+            }else{
+                response.getWriter().write(
+                        "]"
+                );
+            }
+        }
+
+        response.getWriter().write(
+                "}"
+        );
+
+        //ResponseEntity.ok(jwt);
     }
 }

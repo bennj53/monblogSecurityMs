@@ -1,0 +1,51 @@
+version: "3"
+services:
+  sec-service:
+    image: sec-service
+    ports:
+      - "8080:8080"
+    networks:
+      sec-mysql:
+        aliases:
+          - sec-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/db_users?autoReconnect=true&createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=admin
+    depends_on:
+      - mysqldb
+ 
+  mysqldb:
+    image: mysql:8
+    networks:
+      sec-mysql:
+        aliases:
+          - mysqldb
+    environment:
+      - MYSQL_ROOT_PASSWORD="admin"
+      - MYSQL_DATABASE="db_users"
+      - MYSQL_USER="userdb"
+      - MYSQL_PASSWORD="admin"
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    networks:
+      sec-mysql:
+        aliases:
+          - phpmyadmin  
+    environment:
+     - PMA_ARBITRARY=1
+     - MYSQL_ROOT_PASSWORD=admin
+    restart: always
+    ports:
+     - 8090:80
+    volumes:
+     - /sessions
+    depends_on:
+      - mysqldb
+      
+networks:
+  sec-mysql:
